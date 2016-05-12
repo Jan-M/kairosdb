@@ -1,18 +1,26 @@
 package org.kairosdb.datastore.cassandra;
 
+import com.datastax.driver.core.policies.AddressTranslater;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import com.datastax.driver.core.ConsistencyLevel;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  Created by bhawkins on 10/13/14.
  */
 public class CassandraConfiguration
 {
+	public static enum ADDRESS_TRANSLATOR_TYPE {
+		NONE,
+		EC2
+	}
+
 	private static final String HOST_LIST_PROPERTY = "kairosdb.datastore.cassandra.host_list";
+	private static final String CASSANDRA_PORT = "kairosdb.datastore.cassandra.port";
 
 	public static final String READ_CONSISTENCY_LEVEL = "kairosdb.datastore.cassandra.read_consistency_level";
 	public static final String WRITE_CONSISTENCY_LEVEL_META = "kairosdb.datastore.cassandra.write_consistency_level_meta";
@@ -25,6 +33,10 @@ public class CassandraConfiguration
 
 	public static final String KEYSPACE_PROPERTY = "kairosdb.datastore.cassandra.keyspace";
 	public static final String REPLICATION_FACTOR_PROPERTY = "kairosdb.datastore.cassandra.replication_factor";
+
+	public static final String CASSANDRA_USER = "kairosdb.datastore.cassandra.user";
+	public static final String CASSANDRA_PASSWORD = "kairosdb.datastore.cassandra.password";
+	public static final String CASSANDRA_ADDRESS_TRANSLATOR = "kairosdb.datastore.cassandra.address_translator";
 
 	@Inject
 	@Named(WRITE_CONSISTENCY_LEVEL_META)
@@ -48,7 +60,7 @@ public class CassandraConfiguration
 
 	@Inject
 	@Named(HOST_LIST_PROPERTY)
-	private String m_hostList = "localhost:9042";
+	private String m_hostList = "localhost";
 
 	@Inject
 	@Named(STRING_CACHE_SIZE_PROPERTY)
@@ -66,6 +78,21 @@ public class CassandraConfiguration
 	@Named(KEYSPACE_PROPERTY)
 	private String m_keyspaceName;
 
+	@Inject(optional=true)
+	@Named(CASSANDRA_USER)
+	private String m_user = null;
+
+	@Inject(optional=true)
+	@Named(CASSANDRA_PASSWORD)
+	private String m_password = null;
+
+	@Inject(optional=true)
+	@Named(CASSANDRA_ADDRESS_TRANSLATOR)
+	private ADDRESS_TRANSLATOR_TYPE m_addressTranslator = ADDRESS_TRANSLATOR_TYPE.NONE;
+
+	@Inject(optional=true)
+	@Named(CASSANDRA_PORT)
+	private int m_port = 9042;
 
 	public CassandraConfiguration()
 	{
@@ -136,5 +163,21 @@ public class CassandraConfiguration
 
 	public void setHostList(String m_hostList) {
 		this.m_hostList = m_hostList;
+	}
+
+	public String getPassword() {
+		return m_password;
+	}
+
+	public String getUser() {
+		return m_user;
+	}
+
+	public ADDRESS_TRANSLATOR_TYPE getAddressTranslator() {
+		return m_addressTranslator;
+	}
+
+	public int getPort() {
+		return m_port;
 	}
 }
